@@ -1,0 +1,2743 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نمودارهای پیشرفته توابع توانی - سیستم تحلیلی ریاضی</title>
+    
+    <!-- فونت‌های فارسی -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    
+    <!-- آیکون‌ها -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- کتابخانه‌های اضافی -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css">
+    
+    <style>
+        /* متغیرهای طراحی */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #06b6d4;
+            --secondary-dark: #0891b2;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #cbd5e1;
+            
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --card-border: rgba(99, 102, 241, 0.2);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.2);
+            --shadow-sm: 0 5px 15px rgba(0, 0, 0, 0.1);
+            
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+        
+        /* ریست استایل‌ها */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            direction: rtl;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* پس‌زمینه پویا */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-100px) translateX(100px); }
+            50% { transform: translateY(-200px) translateX(0); }
+            75% { transform: translateY(-100px) translateX(-100px); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+        
+        .grid-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        
+        /* ساختار اصلی */
+        .app-container {
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        /* هدر */
+        .app-header {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--card-border);
+            padding: 24px 30px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0) 70%);
+            z-index: 0;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            font-weight: 900;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            animation: logoGlow 3s infinite alternate;
+        }
+        
+        @keyframes logoGlow {
+            0% { box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+            100% { box-shadow: 0 10px 40px rgba(6, 182, 212, 0.4); }
+        }
+        
+        .title-container h1 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .title-container p {
+            font-size: 14px;
+            color: var(--gray-light);
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        /* محتوای اصلی */
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        /* سایدبار */
+        .sidebar {
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+        
+        /* پنل کنترل */
+        .control-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--card-border);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--light);
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        /* ورودی‌های زیبا */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-light);
+        }
+        
+        .value-display {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 15px;
+            direction: ltr;
+        }
+        
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            right: 14px;
+            color: var(--gray);
+            font-size: 18px;
+        }
+        
+        .styled-input {
+            width: 100%;
+            padding: 14px 45px 14px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            color: var(--light);
+            font-size: 16px;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: all 0.3s ease;
+            direction: ltr;
+        }
+        
+        .styled-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .styled-input::placeholder {
+            color: var(--gray);
+        }
+        
+        .input-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .small-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            color: var(--gray-light);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .small-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--light);
+            transform: translateY(-2px);
+        }
+        
+        /* دکمه‌های تابع */
+        .function-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .function-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            color: var(--gray-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .function-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .function-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .function-btn.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.15));
+            border-color: var(--primary);
+            color: var(--light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+        }
+        
+        .function-btn .func-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .function-btn .func-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .function-btn .func-desc {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+        
+        /* سوئیچ‌ها */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .switch-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--gray-light);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        /* اسلایدرها */
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .slider-with-value {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .slider-with-value input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            outline: none;
+        }
+        
+        .slider-with-value input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .slider-with-value input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.8);
+        }
+        
+        /* بخش اصلی نمودار */
+        .chart-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .chart-container {
+            flex: 1;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--card-border);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0) 70%);
+            z-index: 0;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .chart-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--light);
+        }
+        
+        .chart-controls {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .chart-wrapper {
+            flex: 1;
+            position: relative;
+            background: rgba(2, 6, 23, 0.5);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        #plotCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .chart-hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            width: 240px;
+            z-index: 10;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .hud-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .hud-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .hud-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .hud-label {
+            color: var(--gray-light);
+        }
+        
+        .hud-value {
+            color: var(--light);
+            font-weight: 600;
+            direction: ltr;
+        }
+        
+        /* تولتیپ */
+        .chart-tooltip {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--light);
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            max-width: 300px;
+        }
+        
+        .tooltip-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+        
+        .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        
+        /* پنل اطلاعات */
+        .info-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--card-border);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .info-card {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .info-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .info-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-light);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-card-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--light);
+            direction: ltr;
+        }
+        
+        .info-card-desc {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 6px;
+        }
+        
+        /* دکمه‌های عملیاتی */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .action-btn {
+            padding: 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            color: var(--gray-light);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+        }
+        
+        .action-btn.success {
+            background: linear-gradient(135deg, var(--success), #0da271);
+            color: white;
+            border: none;
+        }
+        
+        .action-btn.warning {
+            background: linear-gradient(135deg, var(--warning), var(--accent-dark));
+            color: white;
+            border: none;
+        }
+        
+        /* راهنما */
+        .help-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--card-border);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .help-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .help-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--gray-light);
+        }
+        
+        .help-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+        
+        /* فوتور */
+        .app-footer {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--card-border);
+            padding: 20px 30px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: var(--gray-light);
+        }
+        
+        .footer-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .footer-stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* رسپانسیو */
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .info-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .app-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .function-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .footer-info {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .footer-stats {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 12px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* انیمیشن‌های ویژه */
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        /* استایل مخصوص اسکرول‌بار */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* استایل برای نمایش ریاضی */
+        .math-display {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+            direction: ltr;
+        }
+    </style>
+</head>
+<body>
+    <!-- پس‌زمینه پویا -->
+    <div class="background-animation" id="backgroundAnimation"></div>
+    <div class="grid-pattern"></div>
+    
+    <!-- اعلان‌ها -->
+    <div id="toast-container"></div>
+    
+    <!-- برنامه اصلی -->
+    <div class="app-container">
+        <!-- هدر -->
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="logo">
+                    ƒ(x)
+                </div>
+                <div class="header-content">
+                    <div class="title-container">
+                        <h1>سیستم پیشرفته تحلیل توابع ریاضی</h1>
+                        <p>رسم، تحلیل و بررسی توابع توانی x<sup>n</sup>، x<sup>-n</sup>، x<sup>1/n</sup> و x<sup>-1/n</sup> با دقت بالا و امکانات جامع</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-controls">
+                <div class="action-buttons">
+                    <button class="action-btn primary" id="exportBtn">
+                        <i class="fas fa-download"></i>
+                        ذخیره نمودار
+                    </button>
+                    <button class="action-btn" id="printBtn">
+                        <i class="fas fa-print"></i>
+                        چاپ
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- محتوای اصلی -->
+        <div class="main-content">
+            <!-- سایدبار -->
+            <div class="sidebar">
+                <!-- پنل کنترل -->
+                <div class="control-panel slide-in">
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-sliders-h"></i>
+                            تنظیمات نمودار
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-label">
+                                <span>مقدار n (توان)</span>
+                                <span class="value-display" id="nValueDisplay">2.0</span>
+                            </div>
+                            <div class="input-with-icon">
+                                <i class="fas fa-hashtag"></i>
+                                <input type="text" class="styled-input" id="nInput" value="2" placeholder="مثال: 2, 1.5, 3/2, 0.5">
+                            </div>
+                            <div class="input-buttons">
+                                <button class="small-btn" id="nDecrease">
+                                    <i class="fas fa-minus"></i>
+                                    کاهش
+                                </button>
+                                <button class="small-btn" id="nIncrease">
+                                    <i class="fas fa-plus"></i>
+                                    افزایش
+                                </button>
+                                <button class="small-btn" id="nApply">
+                                    <i class="fas fa-check"></i>
+                                    اعمال
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-label">
+                                <span>دامنه محور X</span>
+                                <span class="value-display" id="domainValueDisplay">[-10, 10]</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-with-value">
+                                    <input type="range" id="domainSlider" min="2" max="50" step="1" value="10">
+                                    <span class="value-display" id="domainSliderValue">10</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <div class="input-label">
+                                <span>تعداد نمونه‌ها</span>
+                                <span class="value-display" id="samplesValueDisplay">1000</span>
+                            </div>
+                            <div class="slider-container">
+                                <div class="slider-with-value">
+                                    <input type="range" id="samplesSlider" min="100" max="5000" step="100" value="1000">
+                                    <span class="value-display" id="samplesSliderValue">1000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-chart-line"></i>
+                            انتخاب توابع
+                        </div>
+                        
+                        <div class="function-selector">
+                            <div class="function-btn active" data-func="pow">
+                                <div class="func-icon">
+                                    x<sup>n</sup>
+                                </div>
+                                <div class="func-name">x<sup>n</sup></div>
+                                <div class="func-desc">تابع توانی مثبت</div>
+                            </div>
+                            <div class="function-btn" data-func="invpow">
+                                <div class="func-icon">
+                                    x<sup>-n</sup>
+                                </div>
+                                <div class="func-name">x<sup>-n</sup></div>
+                                <div class="func-desc">تابع توانی منفی</div>
+                            </div>
+                            <div class="function-btn" data-func="root">
+                                <div class="func-icon">
+                                    x<sup>1/n</sup>
+                                </div>
+                                <div class="func-name">x<sup>1/n</sup></div>
+                                <div class="func-desc">تابع ریشه n-ام</div>
+                            </div>
+                            <div class="function-btn" data-func="invroot">
+                                <div class="func-icon">
+                                    x<sup>-1/n</sup>
+                                </div>
+                                <div class="func-name">x<sup>-1/n</sup></div>
+                                <div class="func-desc">معکوس ریشه n-ام</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel-section">
+                        <div class="section-title">
+                            <i class="fas fa-palette"></i>
+                            تنظیمات ظاهری
+                        </div>
+                        
+                        <div class="switch-container">
+                            <div class="switch-label">
+                                <i class="fas fa-th-large"></i>
+                                نمایش شبکه
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="gridToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="switch-container">
+                            <div class="switch-label">
+                                <i class="fas fa-bezier-curve"></i>
+                                نمایش نقاط
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="pointsToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="switch-container">
+                            <div class="switch-label">
+                                <i class="fas fa-running"></i>
+                                انیمیشن نمودار
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="animationToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="switch-container">
+                            <div class="switch-label">
+                                <i class="fas fa-wave-square"></i>
+                                آنتی‌آلیاس
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="antialiasToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- پنل اطلاعات -->
+                <div class="info-panel slide-in">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        اطلاعات تابع
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-function"></i>
+                                تابع فعلی
+                            </div>
+                            <div class="info-card-value math-display" id="currentFunctionDisplay">f(x) = x<sup>2</sup></div>
+                            <div class="info-card-desc">تابع انتخاب شده برای رسم</div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-calculator"></i>
+                                مقدار n
+                            </div>
+                            <div class="info-card-value" id="currentNDisplay">2.0</div>
+                            <div class="info-card-desc">مقدار فعلی پارامتر n</div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-ruler-combined"></i>
+                                دامنه
+                            </div>
+                            <div class="info-card-value" id="currentDomainDisplay">[-10, 10]</div>
+                            <div class="info-card-desc">بازه محور افقی</div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-tachometer-alt"></i>
+                                نمونه‌ها
+                            </div>
+                            <div class="info-card-value" id="currentSamplesDisplay">1000</div>
+                            <div class="info-card-desc">تعداد نقاط محاسبه شده</div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn" id="presetBtn">
+                            <i class="fas fa-magic"></i>
+                            پیش‌تنظیم‌ها
+                        </button>
+                        <button class="action-btn success" id="calculateBtn">
+                            <i class="fas fa-calculator"></i>
+                            محاسبات ویژه
+                        </button>
+                        <button class="action-btn warning" id="resetBtn">
+                            <i class="fas fa-redo"></i>
+                            بازنشانی
+                        </button>
+                        <button class="action-btn" id="helpBtn">
+                            <i class="fas fa-question-circle"></i>
+                            راهنما
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- بخش نمودار -->
+            <div class="chart-section">
+                <div class="chart-container slide-in">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-area"></i>
+                            نمودار توابع
+                        </div>
+                        
+                        <div class="chart-controls">
+                            <div class="action-buttons">
+                                <button class="action-btn" id="zoomInBtn">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                                <button class="action-btn" id="zoomOutBtn">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <button class="action-btn" id="panBtn">
+                                    <i class="fas fa-arrows-alt"></i>
+                                </button>
+                                <button class="action-btn" id="autoFitBtn">
+                                    <i class="fas fa-expand-arrows-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-wrapper">
+                        <canvas id="plotCanvas"></canvas>
+                        
+                        <!-- HUD -->
+                        <div class="chart-hud">
+                            <div class="hud-title">
+                                <i class="fas fa-info-circle"></i>
+                                اطلاعات نمودار
+                            </div>
+                            <div class="hud-info">
+                                <div class="hud-item">
+                                    <span class="hud-label">توابع فعال:</span>
+                                    <span class="hud-value" id="activeFunctionsDisplay">4</span>
+                                </div>
+                                <div class="hud-item">
+                                    <span class="hud-label">محدوده X:</span>
+                                    <span class="hud-value" id="hudXRangeDisplay">[-10, 10]</span>
+                                </div>
+                                <div class="hud-item">
+                                    <span class="hud-label">محدوده Y:</span>
+                                    <span class="hud-value" id="hudYRangeDisplay">[-10, 10]</span>
+                                </div>
+                                <div class="hud-item">
+                                    <span class="hud-label">وضعیت:</span>
+                                    <span class="hud-value" id="hudStatusDisplay">فعال</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- تولتیپ -->
+                        <div class="chart-tooltip" id="chartTooltip"></div>
+                    </div>
+                </div>
+                
+                <!-- راهنما -->
+                <div class="help-panel slide-in">
+                    <div class="section-title">
+                        <i class="fas fa-lightbulb"></i>
+                        راهنمای استفاده
+                    </div>
+                    
+                    <div class="help-items">
+                        <div class="help-item">
+                            <div class="help-icon">
+                                <i class="fas fa-mouse-pointer"></i>
+                            </div>
+                            <span>برای جابجایی نمودار، روی آن کلیک و درگ کنید</span>
+                        </div>
+                        <div class="help-item">
+                            <div class="help-icon">
+                                <i class="fas fa-mouse"></i>
+                            </div>
+                            <span>برای زوم، از چرخ ماوس استفاده کنید</span>
+                        </div>
+                        <div class="help-item">
+                            <div class="help-icon">
+                                <i class="fas fa-keyboard"></i>
+                            </div>
+                            <span>با دوبار کلیک، نمودار را بازنشانی کنید</span>
+                        </div>
+                        <div class="help-item">
+                            <div class="help-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <span>از دکمه‌های ۱ تا ۴ برای انتخاب سریع توابع استفاده کنید</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- فوتر -->
+        <footer class="app-footer">
+            <div class="footer-info">
+                <div>سامانه ترسیم و تحلیل توابع ریاضی - نسخه ۲.۰</div>
+                <div class="footer-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span id="renderTime">0ms</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-bolt"></i>
+                        <span id="fpsCounter">60 FPS</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-memory"></i>
+                        <span id="memoryUsage">--</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                تمامی حقوق محفوظ است © ۱۴۰۳
+            </div>
+        </footer>
+    </div>
+    
+    <!-- مودال پیش‌تنظیم‌ها -->
+    <div class="modal-overlay" id="presetModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>پیش‌تنظیم‌های آماده</h3>
+                <button class="modal-close" id="closePresetModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="preset-grid">
+                    <div class="preset-card" data-preset="linear">
+                        <div class="preset-icon">f(x) = x</div>
+                        <div class="preset-title">تابع خطی</div>
+                        <div class="preset-desc">n = 1</div>
+                    </div>
+                    <div class="preset-card" data-preset="quadratic">
+                        <div class="preset-icon">f(x) = x²</div>
+                        <div class="preset-title">تابع درجه دوم</div>
+                        <div class="preset-desc">n = 2</div>
+                    </div>
+                    <div class="preset-card" data-preset="cubic">
+                        <div class="preset-icon">f(x) = x³</div>
+                        <div class="preset-title">تابع درجه سوم</div>
+                        <div class="preset-desc">n = 3</div>
+                    </div>
+                    <div class="preset-card" data-preset="sqrt">
+                        <div class="preset-icon">f(x) = √x</div>
+                        <div class="preset-title">جذر</div>
+                        <div class="preset-desc">n = 0.5</div>
+                    </div>
+                    <div class="preset-card" data-preset="inverse">
+                        <div class="preset-icon">f(x) = 1/x</div>
+                        <div class="preset-title">معکوس</div>
+                        <div class="preset-desc">n = -1</div>
+                    </div>
+                    <div class="preset-card" data-preset="const">
+                        <div class="preset-icon">f(x) = 1</div>
+                        <div class="preset-title">تابع ثابت</div>
+                        <div class="preset-desc">n = 0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- اسکریپت‌ها -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"></script>
+    
+    <script>
+        // ============ متغیرهای اصلی ============
+        const canvas = document.getElementById('plotCanvas');
+        const ctx = canvas.getContext('2d');
+        let dpr = window.devicePixelRatio || 1;
+        
+        // وضعیت برنامه
+        let state = {
+            n: 2,
+            domain: 10,
+            samples: 1000,
+            activeFunctions: ['pow', 'invpow', 'root', 'invroot'],
+            viewport: {
+                xMin: -10,
+                xMax: 10,
+                yMin: -10,
+                yMax: 10
+            },
+            animation: {
+                enabled: true,
+                speed: 1.0
+            },
+            rendering: {
+                grid: true,
+                points: false,
+                antialias: true
+            },
+            performance: {
+                lastRender: 0,
+                fps: 60,
+                frameCount: 0,
+                lastFpsUpdate: 0
+            },
+            interaction: {
+                isDragging: false,
+                dragStart: { x: 0, y: 0 },
+                viewportStart: { xMin: 0, xMax: 0, yMin: 0, yMax: 0 }
+            }
+        };
+        
+        // رنگ‌های نمودارها
+        const functionColors = {
+            pow: { main: '#6366f1', light: 'rgba(99, 102, 241, 0.2)', glow: 'rgba(99, 102, 241, 0.1)' },
+            invpow: { main: '#06b6d4', light: 'rgba(6, 182, 212, 0.2)', glow: 'rgba(6, 182, 212, 0.1)' },
+            root: { main: '#f59e0b', light: 'rgba(245, 158, 11, 0.2)', glow: 'rgba(245, 158, 11, 0.1)' },
+            invroot: { main: '#10b981', light: 'rgba(16, 185, 129, 0.2)', glow: 'rgba(16, 185, 129, 0.1)' }
+        };
+        
+        // ============ مقداردهی اولیه ============
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+        
+        function initApp() {
+            // ایجاد پس‌زمینه پویا
+            createDynamicBackground();
+            
+            // تنظیم اندازه کانواس
+            setupCanvas();
+            
+            // راه‌اندازی کنترل‌ها
+            setupControls();
+            
+            // راه‌اندازی نمودار
+            setupChart();
+            
+            // شروع انیمیشن
+            requestAnimationFrame(renderLoop);
+            
+            // نمایش اعلان خوشامدگویی
+            showToast('سیستم ترسیم نمودارهای ریاضی راه‌اندازی شد!', 'success');
+        }
+        
+        // ============ ایجاد پس‌زمینه پویا ============
+        function createDynamicBackground() {
+            const container = document.getElementById('backgroundAnimation');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // اندازه تصادفی
+                const size = Math.random() * 100 + 20;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // موقعیت تصادفی
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // رنگ تصادفی با شفافیت
+                const colors = [
+                    'rgba(99, 102, 241, 0.05)',
+                    'rgba(6, 182, 212, 0.05)',
+                    'rgba(245, 158, 11, 0.05)',
+                    'rgba(16, 185, 129, 0.05)'
+                ];
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // انیمیشن تصادفی
+                const duration = Math.random() * 30 + 20;
+                const delay = Math.random() * 10;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // ============ تنظیم کانواس ============
+        function setupCanvas() {
+            function resizeCanvas() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                canvas.style.width = `${rect.width}px`;
+                canvas.style.height = `${rect.height}px`;
+                
+                // تنظیم مقیاس برای وضوح بالا
+                ctx.scale(dpr, dpr);
+                
+                // رسم اولیه
+                drawChart();
+            }
+            
+            // تنظیم اندازه اولیه
+            resizeCanvas();
+            
+            // تنظیم مجدد هنگام تغییر اندازه پنجره
+            window.addEventListener('resize', resizeCanvas);
+        }
+        
+        // ============ راه‌اندازی کنترل‌ها ============
+        function setupControls() {
+            // کنترل مقدار n
+            const nInput = document.getElementById('nInput');
+            const nValueDisplay = document.getElementById('nValueDisplay');
+            const nDecreaseBtn = document.getElementById('nDecrease');
+            const nIncreaseBtn = document.getElementById('nIncrease');
+            const nApplyBtn = document.getElementById('nApply');
+            
+            nInput.addEventListener('input', function() {
+                nValueDisplay.textContent = this.value;
+            });
+            
+            nDecreaseBtn.addEventListener('click', function() {
+                const currentValue = parseFloat(nInput.value) || 0;
+                const newValue = (currentValue - 0.5).toFixed(2);
+                nInput.value = newValue;
+                nValueDisplay.textContent = newValue;
+                updateN();
+            });
+            
+            nIncreaseBtn.addEventListener('click', function() {
+                const currentValue = parseFloat(nInput.value) || 0;
+                const newValue = (currentValue + 0.5).toFixed(2);
+                nInput.value = newValue;
+                nValueDisplay.textContent = newValue;
+                updateN();
+            });
+            
+            nApplyBtn.addEventListener('click', updateN);
+            
+            nInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') updateN();
+            });
+            
+            // کنترل دامنه
+            const domainSlider = document.getElementById('domainSlider');
+            const domainSliderValue = document.getElementById('domainSliderValue');
+            const domainValueDisplay = document.getElementById('domainValueDisplay');
+            
+            domainSlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                domainSliderValue.textContent = value;
+                domainValueDisplay.textContent = `[-${value}, ${value}]`;
+                updateDomain();
+            });
+            
+            // کنترل نمونه‌ها
+            const samplesSlider = document.getElementById('samplesSlider');
+            const samplesSliderValue = document.getElementById('samplesSliderValue');
+            const samplesValueDisplay = document.getElementById('samplesValueDisplay');
+            
+            samplesSlider.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                samplesSliderValue.textContent = value;
+                samplesValueDisplay.textContent = value;
+                state.samples = value;
+                drawChart();
+            });
+            
+            // انتخاب توابع
+            document.querySelectorAll('.function-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const func = this.dataset.func;
+                    
+                    // تغییر وضعیت فعال/غیرفعال
+                    this.classList.toggle('active');
+                    
+                    // به‌روزرسانی لیست توابع فعال
+                    const index = state.activeFunctions.indexOf(func);
+                    if (index > -1) {
+                        state.activeFunctions.splice(index, 1);
+                    } else {
+                        state.activeFunctions.push(func);
+                    }
+                    
+                    // به‌روزرسانی نمایش
+                    updateActiveFunctionsDisplay();
+                    
+                    // رسم مجدد نمودار
+                    drawChart();
+                });
+            });
+            
+            // سوئیچ‌ها
+            document.getElementById('gridToggle').addEventListener('change', function() {
+                state.rendering.grid = this.checked;
+                drawChart();
+            });
+            
+            document.getElementById('pointsToggle').addEventListener('change', function() {
+                state.rendering.points = this.checked;
+                drawChart();
+            });
+            
+            document.getElementById('animationToggle').addEventListener('change', function() {
+                state.animation.enabled = this.checked;
+            });
+            
+            document.getElementById('antialiasToggle').addEventListener('change', function() {
+                state.rendering.antialias = this.checked;
+                drawChart();
+            });
+            
+            // دکمه‌های کنترل نمودار
+            document.getElementById('zoomInBtn').addEventListener('click', function() {
+                zoomChart(0.8);
+            });
+            
+            document.getElementById('zoomOutBtn').addEventListener('click', function() {
+                zoomChart(1.2);
+            });
+            
+            document.getElementById('autoFitBtn').addEventListener('click', function() {
+                resetViewport();
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                resetApp();
+            });
+            
+            document.getElementById('presetBtn').addEventListener('click', function() {
+                showPresetModal();
+            });
+            
+            document.getElementById('exportBtn').addEventListener('click', exportChart);
+            document.getElementById('printBtn').addEventListener('click', printChart);
+            document.getElementById('calculateBtn').addEventListener('click', showCalculations);
+            document.getElementById('helpBtn').addEventListener('click', showHelp);
+            
+            // راه‌اندازی تعامل‌های نمودار
+            setupChartInteractions();
+            
+            // به‌روزرسانی اولیه نمایش‌ها
+            updateDisplays();
+        }
+        
+        // ============ به‌روزرسانی مقدار n ============
+        function updateN() {
+            const input = document.getElementById('nInput').value.trim();
+            
+            // پردازش ورودی‌های مختلف (کسر، اعشار)
+            let newN;
+            if (input.includes('/')) {
+                const parts = input.split('/');
+                if (parts.length === 2) {
+                    const num = parseFloat(parts[0]);
+                    const den = parseFloat(parts[1]);
+                    if (!isNaN(num) && !isNaN(den) && den !== 0) {
+                        newN = num / den;
+                    } else {
+                        showToast('کسر وارد شده معتبر نیست!', 'error');
+                        return;
+                    }
+                }
+            } else {
+                newN = parseFloat(input);
+            }
+            
+            if (!isNaN(newN) && isFinite(newN)) {
+                state.n = newN;
+                
+                // به‌روزرسانی نمایش‌ها
+                updateDisplays();
+                
+                // نمایش پیام موفقیت
+                showToast(`مقدار n به ${newN} تغییر یافت`, 'success');
+                
+                // رسم نمودار با انیمیشن
+                animateNChange(newN);
+            } else {
+                showToast('لطفاً یک عدد معتبر وارد کنید!', 'error');
+            }
+        }
+        
+        // ============ انیمیشن تغییر n ============
+        function animateNChange(newN) {
+            const oldN = state.n;
+            const startTime = performance.now();
+            const duration = 1000; // 1 ثانیه
+            
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // محاسبه مقدار میانی با تابع easing
+                const easeProgress = easeInOutCubic(progress);
+                state.n = oldN + (newN - oldN) * easeProgress;
+                
+                // رسم نمودار
+                drawChart();
+                
+                // ادامه انیمیشن
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    state.n = newN;
+                    drawChart();
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // تابع easing برای انیمیشن
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+        
+        // ============ به‌روزرسانی دامنه ============
+        function updateDomain() {
+            const domainValue = parseInt(document.getElementById('domainSlider').value);
+            state.domain = domainValue;
+            state.viewport.xMin = -domainValue;
+            state.viewport.xMax = domainValue;
+            
+            // تنظیم خودکار محدوده Y
+            const yRange = Math.max(10, domainValue);
+            state.viewport.yMin = -yRange;
+            state.viewport.yMax = yRange;
+            
+            // به‌روزرسانی نمایش‌ها
+            updateDisplays();
+            
+            // رسم نمودار
+            drawChart();
+        }
+        
+        // ============ به‌روزرسانی نمایش‌ها ============
+        function updateDisplays() {
+            // نمایش مقدار n
+            document.getElementById('currentNDisplay').textContent = state.n.toFixed(2);
+            
+            // نمایش تابع فعلی
+            updateFunctionDisplay();
+            
+            // نمایش دامنه
+            document.getElementById('currentDomainDisplay').textContent = 
+                `[${state.viewport.xMin.toFixed(1)}, ${state.viewport.xMax.toFixed(1)}]`;
+            
+            // نمایش نمونه‌ها
+            document.getElementById('currentSamplesDisplay').textContent = state.samples;
+            
+            // نمایش محدوده‌ها در HUD
+            document.getElementById('hudXRangeDisplay').textContent = 
+                `[${state.viewport.xMin.toFixed(1)}, ${state.viewport.xMax.toFixed(1)}]`;
+            document.getElementById('hudYRangeDisplay').textContent = 
+                `[${state.viewport.yMin.toFixed(1)}, ${state.viewport.yMax.toFixed(1)}]`;
+        }
+        
+        function updateFunctionDisplay() {
+            let display = '';
+            if (state.activeFunctions.includes('pow')) {
+                display += `x<sup>${state.n.toFixed(2)}</sup> `;
+            }
+            if (state.activeFunctions.includes('invpow')) {
+                display += `x<sup>-${state.n.toFixed(2)}</sup> `;
+            }
+            if (state.activeFunctions.includes('root')) {
+                display += `x<sup>1/${state.n.toFixed(2)}</sup> `;
+            }
+            if (state.activeFunctions.includes('invroot')) {
+                display += `x<sup>-1/${state.n.toFixed(2)}</sup> `;
+            }
+            
+            document.getElementById('currentFunctionDisplay').innerHTML = 
+                display || 'هیچ تابعی انتخاب نشده';
+        }
+        
+        function updateActiveFunctionsDisplay() {
+            document.getElementById('activeFunctionsDisplay').textContent = 
+                state.activeFunctions.length;
+        }
+        
+        // ============ راه‌اندازی نمودار ============
+        function setupChart() {
+            // تنظیم اولیه نمودار
+            drawChart();
+            
+            // به‌روزرسانی وضعیت اولیه
+            updateActiveFunctionsDisplay();
+            updateDisplays();
+        }
+        
+        // ============ رسم نمودار اصلی ============
+        function drawChart() {
+            const startTime = performance.now();
+            
+            // پاک کردن کانواس
+            ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+            
+            // رسم پس‌زمینه
+            drawBackground();
+            
+            // رسم شبکه (اگر فعال باشد)
+            if (state.rendering.grid) {
+                drawGrid();
+            }
+            
+            // رسم محورها
+            drawAxes();
+            
+            // رسم توابع
+            state.activeFunctions.forEach(func => {
+                drawFunction(func);
+            });
+            
+            // رسم نقاط (اگر فعال باشد)
+            if (state.rendering.points) {
+                drawPoints();
+            }
+            
+            // محاسبه زمان رندر
+            const renderTime = performance.now() - startTime;
+            document.getElementById('renderTime').textContent = `${renderTime.toFixed(1)}ms`;
+            
+            // به‌روزرسانی شمارنده FPS
+            updateFPS();
+        }
+        
+        function drawBackground() {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            
+            // گرادیانت پس‌زمینه
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, 'rgba(2, 6, 23, 0.8)');
+            gradient.addColorStop(1, 'rgba(15, 23, 42, 0.9)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+        }
+        
+        function drawGrid() {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const { xMin, xMax, yMin, yMax } = state.viewport;
+            
+            // تبدیل مختصات
+            const toScreenX = (x) => (x - xMin) / (xMax - xMin) * width;
+            const toScreenY = (y) => height - (y - yMin) / (yMax - yMin) * height;
+            
+            // محاسبه فواصل خطوط شبکه
+            const xRange = xMax - xMin;
+            const yRange = yMax - yMin;
+            const xStep = calculateStep(xRange);
+            const yStep = calculateStep(yRange);
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            
+            // خطوط عمودی
+            for (let x = Math.ceil(xMin / xStep) * xStep; x <= xMax; x += xStep) {
+                if (Math.abs(x) < 0.001) continue; // از رسم خط محور Y صرف نظر کن
+                
+                const screenX = toScreenX(x);
+                ctx.beginPath();
+                ctx.moveTo(screenX, 0);
+                ctx.lineTo(screenX, height);
+                ctx.stroke();
+                
+                // برچسب‌های محور X
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.font = '12px Vazirmatn';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(x.toFixed(1), screenX, toScreenY(0) + 5);
+            }
+            
+            // خطوط افقی
+            for (let y = Math.ceil(yMin / yStep) * yStep; y <= yMax; y += yStep) {
+                if (Math.abs(y) < 0.001) continue; // از رسم خط محور X صرف نظر کن
+                
+                const screenY = toScreenY(y);
+                ctx.beginPath();
+                ctx.moveTo(0, screenY);
+                ctx.lineTo(width, screenY);
+                ctx.stroke();
+                
+                // برچسب‌های محور Y
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.font = '12px Vazirmatn';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(y.toFixed(1), toScreenX(0) - 5, screenY);
+            }
+        }
+        
+        function calculateStep(range) {
+            const order = Math.pow(10, Math.floor(Math.log10(range)));
+            const normalized = range / order;
+            
+            if (normalized < 2) return order / 5;
+            if (normalized < 5) return order / 2;
+            return order;
+        }
+        
+        function drawAxes() {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const { xMin, xMax, yMin, yMax } = state.viewport;
+            
+            // تبدیل مختصات
+            const toScreenX = (x) => (x - xMin) / (xMax - xMin) * width;
+            const toScreenY = (y) => height - (y - yMin) / (yMax - yMin) * height;
+            
+            // محور X
+            const originY = toScreenY(0);
+            if (originY >= 0 && originY <= height) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, originY);
+                ctx.lineTo(width, originY);
+                ctx.stroke();
+            }
+            
+            // محور Y
+            const originX = toScreenX(0);
+            if (originX >= 0 && originX <= width) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(originX, 0);
+                ctx.lineTo(originX, height);
+                ctx.stroke();
+            }
+            
+            // برچسب مبدأ
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.font = 'bold 14px Vazirmatn';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText('O', toScreenX(0) + 5, toScreenY(0) + 5);
+        }
+        
+        function drawFunction(funcType) {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const { xMin, xMax, yMin, yMax } = state.viewport;
+            const samples = state.samples;
+            
+            // تبدیل مختصات
+            const toScreenX = (x) => (x - xMin) / (xMax - xMin) * width;
+            const toScreenY = (y) => height - (y - yMin) / (yMax - yMin) * height;
+            
+            // محاسبه نقاط تابع
+            const points = [];
+            const step = (xMax - xMin) / samples;
+            
+            for (let i = 0; i <= samples; i++) {
+                const x = xMin + i * step;
+                let y;
+                
+                // محاسبه مقدار y بر اساس نوع تابع
+                try {
+                    switch (funcType) {
+                        case 'pow':
+                            y = Math.pow(x, state.n);
+                            break;
+                        case 'invpow':
+                            y = Math.pow(x, -state.n);
+                            break;
+                        case 'root':
+                            y = Math.pow(x, 1 / state.n);
+                            break;
+                        case 'invroot':
+                            y = Math.pow(x, -1 / state.n);
+                            break;
+                        default:
+                            y = NaN;
+                    }
+                } catch (e) {
+                    y = NaN;
+                }
+                
+                // بررسی معتبر بودن مقدار
+                if (!isFinite(y) || Math.abs(y) > 10000) {
+                    y = NaN;
+                }
+                
+                points.push({ x, y });
+            }
+            
+            // رنگ تابع
+            const color = functionColors[funcType];
+            
+            // رسم هاله اطراف خط
+            ctx.strokeStyle = color.glow;
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            let isDrawing = false;
+            ctx.beginPath();
+            
+            for (let i = 0; i < points.length; i++) {
+                const point = points[i];
+                
+                if (isNaN(point.y)) {
+                    isDrawing = false;
+                    continue;
+                }
+                
+                const screenX = toScreenX(point.x);
+                const screenY = toScreenY(point.y);
+                
+                // بررسی آیا نقطه در محدوده قابل نمایش است
+                if (screenY < -1000 || screenY > height + 1000) {
+                    isDrawing = false;
+                    continue;
+                }
+                
+                if (!isDrawing) {
+                    ctx.moveTo(screenX, screenY);
+                    isDrawing = true;
+                } else {
+                    ctx.lineTo(screenX, screenY);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // رسم خط اصلی
+            ctx.strokeStyle = color.main;
+            ctx.lineWidth = 3;
+            
+            isDrawing = false;
+            ctx.beginPath();
+            
+            for (let i = 0; i < points.length; i++) {
+                const point = points[i];
+                
+                if (isNaN(point.y)) {
+                    isDrawing = false;
+                    continue;
+                }
+                
+                const screenX = toScreenX(point.x);
+                const screenY = toScreenY(point.y);
+                
+                // بررسی آیا نقطه در محدوده قابل نمایش است
+                if (screenY < -1000 || screenY > height + 1000) {
+                    isDrawing = false;
+                    continue;
+                }
+                
+                if (!isDrawing) {
+                    ctx.moveTo(screenX, screenY);
+                    isDrawing = true;
+                } else {
+                    ctx.lineTo(screenX, screenY);
+                }
+            }
+            
+            ctx.stroke();
+        }
+        
+        function drawPoints() {
+            // این تابع می‌تواند نقاط خاص روی نمودار را رسم کند
+            // فعلاً خالی می‌ماند
+        }
+        
+        // ============ تعامل‌های نمودار ============
+        function setupChartInteractions() {
+            // درگ برای جابجایی
+            canvas.addEventListener('mousedown', startDrag);
+            canvas.addEventListener('mousemove', doDrag);
+            canvas.addEventListener('mouseup', endDrag);
+            canvas.addEventListener('mouseleave', endDrag);
+            
+            // زوم با اسکرول
+            canvas.addEventListener('wheel', handleZoom);
+            
+            // دوبار کلیک برای بازنشانی
+            canvas.addEventListener('dblclick', resetViewport);
+            
+            // تولتیپ
+            canvas.addEventListener('mousemove', showTooltip);
+            canvas.addEventListener('mouseleave', hideTooltip);
+            
+            // کلیدهای میانبر
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+        }
+        
+        function startDrag(e) {
+            state.interaction.isDragging = true;
+            state.interaction.dragStart = { x: e.clientX, y: e.clientY };
+            state.interaction.viewportStart = { ...state.viewport };
+            
+            canvas.style.cursor = 'grabbing';
+        }
+        
+        function doDrag(e) {
+            if (!state.interaction.isDragging) return;
+            
+            const dx = e.clientX - state.interaction.dragStart.x;
+            const dy = e.clientY - state.interaction.dragStart.y;
+            
+            // محاسبه تغییر در مختصات داده
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const xRange = state.viewport.xMax - state.viewport.xMin;
+            const yRange = state.viewport.yMax - state.viewport.yMin;
+            
+            const dxData = -dx / width * xRange;
+            const dyData = dy / height * yRange;
+            
+            // اعمال تغییر
+            state.viewport.xMin = state.interaction.viewportStart.xMin + dxData;
+            state.viewport.xMax = state.interaction.viewportStart.xMax + dxData;
+            state.viewport.yMin = state.interaction.viewportStart.yMin + dyData;
+            state.viewport.yMax = state.interaction.viewportStart.yMax + dyData;
+            
+            // رسم نمودار
+            drawChart();
+        }
+        
+        function endDrag() {
+            state.interaction.isDragging = false;
+            canvas.style.cursor = 'crosshair';
+        }
+        
+        function handleZoom(e) {
+            e.preventDefault();
+            
+            const zoomFactor = e.deltaY > 0 ? 1.2 : 0.8;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // تبدیل مختصات موس به مختصات داده
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            
+            const dataX = state.viewport.xMin + (mouseX / width) * (state.viewport.xMax - state.viewport.xMin);
+            const dataY = state.viewport.yMin + ((height - mouseY) / height) * (state.viewport.yMax - state.viewport.yMin);
+            
+            // اعمال زوم
+            state.viewport.xMin = dataX - (dataX - state.viewport.xMin) * zoomFactor;
+            state.viewport.xMax = dataX + (state.viewport.xMax - dataX) * zoomFactor;
+            state.viewport.yMin = dataY - (dataY - state.viewport.yMin) * zoomFactor;
+            state.viewport.yMax = dataY + (state.viewport.yMax - dataY) * zoomFactor;
+            
+            // رسم نمودار
+            drawChart();
+        }
+        
+        function resetViewport() {
+            const domain = state.domain;
+            state.viewport = {
+                xMin: -domain,
+                xMax: domain,
+                yMin: -Math.max(10, domain),
+                yMax: Math.max(10, domain)
+            };
+            
+            drawChart();
+            showToast('نما به حالت اولیه بازگردانی شد', 'info');
+        }
+        
+        function zoomChart(factor) {
+            const centerX = (state.viewport.xMin + state.viewport.xMax) / 2;
+            const centerY = (state.viewport.yMin + state.viewport.yMax) / 2;
+            
+            const newWidth = (state.viewport.xMax - state.viewport.xMin) * factor;
+            const newHeight = (state.viewport.yMax - state.viewport.yMin) * factor;
+            
+            state.viewport.xMin = centerX - newWidth / 2;
+            state.viewport.xMax = centerX + newWidth / 2;
+            state.viewport.yMin = centerY - newHeight / 2;
+            state.viewport.yMax = centerY + newHeight / 2;
+            
+            drawChart();
+        }
+        
+        function showTooltip(e) {
+            const tooltip = document.getElementById('chartTooltip');
+            const rect = canvas.getBoundingClientRect();
+            
+            // مختصات موس
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // تبدیل به مختصات داده
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            
+            const dataX = state.viewport.xMin + (mouseX / width) * (state.viewport.xMax - state.viewport.xMin);
+            const dataY = state.viewport.yMin + ((height - mouseY) / height) * (state.viewport.yMax - state.viewport.yMin);
+            
+            // محاسبه مقادیر توابع در نقطه X
+            let tooltipContent = '<div class="tooltip-title">مقادیر توابع:</div>';
+            
+            state.activeFunctions.forEach(func => {
+                let value;
+                try {
+                    switch (func) {
+                        case 'pow':
+                            value = Math.pow(dataX, state.n);
+                            break;
+                        case 'invpow':
+                            value = Math.pow(dataX, -state.n);
+                            break;
+                        case 'root':
+                            value = Math.pow(dataX, 1 / state.n);
+                            break;
+                        case 'invroot':
+                            value = Math.pow(dataX, -1 / state.n);
+                            break;
+                        default:
+                            value = NaN;
+                    }
+                } catch (e) {
+                    value = NaN;
+                }
+                
+                if (isFinite(value) && !isNaN(value)) {
+                    let funcName;
+                    switch (func) {
+                        case 'pow':
+                            funcName = `x<sup>${state.n.toFixed(2)}</sup>`;
+                            break;
+                        case 'invpow':
+                            funcName = `x<sup>-${state.n.toFixed(2)}</sup>`;
+                            break;
+                        case 'root':
+                            funcName = `x<sup>1/${state.n.toFixed(2)}</sup>`;
+                            break;
+                        case 'invroot':
+                            funcName = `x<sup>-1/${state.n.toFixed(2)}</sup>`;
+                            break;
+                    }
+                    
+                    tooltipContent += `
+                        <div class="tooltip-row">
+                            <span>${funcName}</span>
+                            <span>${value.toFixed(4)}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            tooltip.innerHTML = tooltipContent;
+            tooltip.style.left = `${mouseX + 10}px`;
+            tooltip.style.top = `${mouseY + 10}px`;
+            tooltip.style.opacity = '1';
+        }
+        
+        function hideTooltip() {
+            const tooltip = document.getElementById('chartTooltip');
+            tooltip.style.opacity = '0';
+        }
+        
+        function handleKeyboardShortcuts(e) {
+            // میانبرهای عددی برای توابع
+            if (e.key >= '1' && e.key <= '4') {
+                const index = parseInt(e.key) - 1;
+                const funcTypes = ['pow', 'invpow', 'root', 'invroot'];
+                const funcBtn = document.querySelector(`.function-btn[data-func="${funcTypes[index]}"]`);
+                
+                if (funcBtn) {
+                    funcBtn.click();
+                }
+            }
+            
+            // میانبرهای دیگر
+            switch (e.key) {
+                case 'r':
+                case 'R':
+                    resetViewport();
+                    break;
+                case '+':
+                    zoomChart(0.8);
+                    break;
+                case '-':
+                    zoomChart(1.2);
+                    break;
+                case ' ':
+                    state.animation.enabled = !state.animation.enabled;
+                    showToast(`انیمیشن ${state.animation.enabled ? 'فعال' : 'غیرفعال'} شد`, 'info');
+                    break;
+            }
+        }
+        
+        // ============ امکانات پیشرفته ============
+        function showPresetModal() {
+            // این تابع می‌تواند یک مودال با پیش‌تنظیم‌ها نمایش دهد
+            const presets = {
+                linear: { n: 1, domain: 10 },
+                quadratic: { n: 2, domain: 5 },
+                cubic: { n: 3, domain: 4 },
+                sqrt: { n: 0.5, domain: 25 },
+                inverse: { n: -1, domain: 10 },
+                const: { n: 0, domain: 10 }
+            };
+            
+            // نمایش مودال ساده
+            let presetOptions = '';
+            for (const [key, preset] of Object.entries(presets)) {
+                presetOptions += `
+                    <div class="preset-option" data-n="${preset.n}" data-domain="${preset.domain}">
+                        <strong>${key}</strong> (n = ${preset.n})
+                    </div>
+                `;
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>پیش‌تنظیم‌های آماده</h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        ${presetOptions}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // رویدادهای مودال
+            modal.querySelector('.modal-close').addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+            
+            modal.querySelectorAll('.preset-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const n = parseFloat(option.dataset.n);
+                    const domain = parseFloat(option.dataset.domain);
+                    
+                    // اعمال پیش‌تنظیم
+                    document.getElementById('nInput').value = n;
+                    document.getElementById('nValueDisplay').textContent = n;
+                    state.n = n;
+                    
+                    document.getElementById('domainSlider').value = domain;
+                    document.getElementById('domainSliderValue').textContent = domain;
+                    document.getElementById('domainValueDisplay').textContent = `[-${domain}, ${domain}]`;
+                    state.domain = domain;
+                    
+                    // به‌روزرسانی نمایش‌ها
+                    updateDisplays();
+                    
+                    // بازنشانی نما
+                    resetViewport();
+                    
+                    // بستن مودال
+                    document.body.removeChild(modal);
+                    
+                    showToast(`پیش‌تنظیم "${option.querySelector('strong').textContent}" اعمال شد`, 'success');
+                });
+            });
+        }
+        
+        function exportChart() {
+            // ایجاد یک کانواس موقت با کیفیت بالا
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // اندازه بزرگتر برای کیفیت بهتر
+            const scale = 2;
+            tempCanvas.width = canvas.width * scale;
+            tempCanvas.height = canvas.height * scale;
+            
+            // کپی نمودار
+            tempCtx.scale(scale, scale);
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            // ایجاد لینک دانلود
+            const link = document.createElement('a');
+            link.download = `نمودار-تابع-توانی-n${state.n}-${new Date().getTime()}.png`;
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
+            
+            showToast('نمودار با موفقیت ذخیره شد', 'success');
+        }
+        
+        function printChart() {
+            // چاپ نمودار
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>چاپ نمودار تابع توانی</title>
+                        <style>
+                            body { font-family: Vazirmatn, sans-serif; padding: 20px; }
+                            h1 { text-align: center; color: #333; }
+                            .chart-container { margin: 20px auto; max-width: 800px; }
+                            .info { margin-top: 30px; font-size: 14px; color: #666; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>نمودار تابع توانی</h1>
+                        <div class="chart-container">
+                            <img src="${canvas.toDataURL('image/png')}" style="width: 100%;">
+                        </div>
+                        <div class="info">
+                            <p><strong>پارامترها:</strong></p>
+                            <p>مقدار n: ${state.n}</p>
+                            <p>دامنه: [${state.viewport.xMin.toFixed(2)}, ${state.viewport.xMax.toFixed(2)}]</p>
+                            <p>توابع: ${state.activeFunctions.map(f => {
+                                switch(f) {
+                                    case 'pow': return `x^${state.n}`;
+                                    case 'invpow': return `x^-${state.n}`;
+                                    case 'root': return `x^(1/${state.n})`;
+                                    case 'invroot': return `x^(-1/${state.n})`;
+                                    default: return f;
+                                }
+                            }).join(', ')}</p>
+                            <p>تاریخ تولید: ${new Date().toLocaleString('fa-IR')}</p>
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+        
+        function showCalculations() {
+            // نمایش محاسبات ویژه
+            const calculations = `
+                <div class="calculations-modal">
+                    <h3>محاسبات ویژه</h3>
+                    <p><strong>مقدار فعلی n:</strong> ${state.n}</p>
+                    <p><strong>مشتق تابع x^n:</strong> ${state.n}x^${state.n - 1}</p>
+                    <p><strong>انتگرال تابع x^n:</strong> x^${state.n + 1}/${state.n + 1} + C</p>
+                    <p><strong>مقدار در x=1:</strong> 1</p>
+                    <p><strong>مقدار در x=2:</strong> ${Math.pow(2, state.n).toFixed(4)}</p>
+                </div>
+            `;
+            
+            showToast(calculations, 'info', 5000);
+        }
+        
+        function showHelp() {
+            // نمایش راهنمای کامل
+            const helpText = `
+                <div class="help-modal">
+                    <h3>راهنمای استفاده از سیستم</h3>
+                    <p><strong>1. تنظیم پارامتر n:</strong> می‌توانید مقدار n را به صورت عدد، کسر یا اعشار وارد کنید.</p>
+                    <p><strong>2. انتخاب توابع:</strong> با کلیک روی هر تابع، آن را فعال یا غیرفعال کنید.</p>
+                    <p><strong>3. کنترل نمودار:</strong> برای جابجایی نمودار کلیک و درگ کنید. برای زوم از چرخ ماوس استفاده کنید.</p>
+                    <p><strong>4. میانبرهای صفحه کلید:</strong></p>
+                    <ul>
+                        <li>کلیدهای 1-4: انتخاب سریع توابع</li>
+                        <li>Space: فعال/غیرفعال کردن انیمیشن</li>
+                        <li>R: بازنشانی نمودار</li>
+                        <li>+/–: زوم کردن</li>
+                    </ul>
+                </div>
+            `;
+            
+            showToast(helpText, 'info', 8000);
+        }
+        
+        function resetApp() {
+            // بازنشانی کامل برنامه
+            state = {
+                n: 2,
+                domain: 10,
+                samples: 1000,
+                activeFunctions: ['pow', 'invpow', 'root', 'invroot'],
+                viewport: {
+                    xMin: -10,
+                    xMax: 10,
+                    yMin: -10,
+                    yMax: 10
+                },
+                animation: {
+                    enabled: true,
+                    speed: 1.0
+                },
+                rendering: {
+                    grid: true,
+                    points: false,
+                    antialias: true
+                },
+                performance: {
+                    lastRender: 0,
+                    fps: 60,
+                    frameCount: 0,
+                    lastFpsUpdate: 0
+                },
+                interaction: {
+                    isDragging: false,
+                    dragStart: { x: 0, y: 0 },
+                    viewportStart: { xMin: 0, xMax: 0, yMin: 0, yMax: 0 }
+                }
+            };
+            
+            // بازنشانی کنترل‌ها
+            document.getElementById('nInput').value = '2';
+            document.getElementById('nValueDisplay').textContent = '2';
+            
+            document.getElementById('domainSlider').value = '10';
+            document.getElementById('domainSliderValue').textContent = '10';
+            document.getElementById('domainValueDisplay').textContent = '[-10, 10]';
+            
+            document.getElementById('samplesSlider').value = '1000';
+            document.getElementById('samplesSliderValue').textContent = '1000';
+            document.getElementById('samplesValueDisplay').textContent = '1000';
+            
+            // بازنشانی انتخاب توابع
+            document.querySelectorAll('.function-btn').forEach(btn => {
+                btn.classList.add('active');
+            });
+            
+            // بازنشانی سوئیچ‌ها
+            document.getElementById('gridToggle').checked = true;
+            document.getElementById('pointsToggle').checked = false;
+            document.getElementById('animationToggle').checked = true;
+            document.getElementById('antialiasToggle').checked = true;
+            
+            // به‌روزرسانی نمایش‌ها
+            updateDisplays();
+            updateActiveFunctionsDisplay();
+            
+            // رسم نمودار
+            drawChart();
+            
+            showToast('برنامه با موفقیت بازنشانی شد', 'success');
+        }
+        
+        // ============ عملکرد و انیمیشن ============
+        function renderLoop(timestamp) {
+            // به‌روزرسانی انیمیشن‌ها
+            if (state.animation.enabled) {
+                // می‌توانید انیمیشن‌های اضافی را اینجا اضافه کنید
+            }
+            
+            // درخواست فریم بعدی
+            requestAnimationFrame(renderLoop);
+        }
+        
+        function updateFPS() {
+            const now = performance.now();
+            state.performance.frameCount++;
+            
+            if (now - state.performance.lastFpsUpdate > 1000) {
+                state.performance.fps = Math.round(
+                    (state.performance.frameCount * 1000) / (now - state.performance.lastFpsUpdate)
+                );
+                state.performance.lastFpsUpdate = now;
+                state.performance.frameCount = 0;
+                
+                document.getElementById('fpsCounter').textContent = `${state.performance.fps} FPS`;
+            }
+        }
+        
+        // ============ ابزارهای کمکی ============
+        function showToast(message, type = 'info', duration = 3000) {
+            // ایجاد اعلان زیبا
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                </div>
+                <div class="toast-content">${message}</div>
+                <button class="toast-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // استایل اعلان
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: ${type === 'success' ? 'rgba(16, 185, 129, 0.9)' : 
+                           type === 'error' ? 'rgba(239, 68, 68, 0.9)' : 
+                           type === 'warning' ? 'rgba(245, 158, 11, 0.9)' : 
+                           'rgba(15, 23, 42, 0.9)'};
+                color: white;
+                padding: 16px 20px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                z-index: 10000;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease-out;
+                max-width: 400px;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // رویداد بستن
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                toast.remove();
+            });
+            
+            // حذف خودکار
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.remove();
+                    }, 300);
+                }
+            }, duration);
+            
+            // اضافه کردن انیمیشن‌های CSS
+            if (!document.querySelector('#toast-animations')) {
+                const style = document.createElement('style');
+                style.id = 'toast-animations';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(-100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(-100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        // استایل‌های اضافی برای مودال‌ها
+        const additionalStyles = `
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(5px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                animation: fadeIn 0.3s ease-out;
+            }
+            
+            .modal-content {
+                background: var(--card-bg);
+                backdrop-filter: blur(20px);
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--card-border);
+                width: 90%;
+                max-width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: var(--shadow-lg);
+                animation: scaleIn 0.3s ease-out;
+            }
+            
+            .modal-header {
+                padding: 20px 24px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .modal-header h3 {
+                margin: 0;
+                font-size: 20px;
+                font-weight: 700;
+            }
+            
+            .modal-close {
+                background: none;
+                border: none;
+                color: var(--gray-light);
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+            
+            .modal-close:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+            }
+            
+            .modal-body {
+                padding: 24px;
+            }
+            
+            .preset-option {
+                padding: 16px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: var(--radius-md);
+                margin-bottom: 12px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                border: 1px solid transparent;
+            }
+            
+            .preset-option:hover {
+                background: rgba(99, 102, 241, 0.1);
+                border-color: var(--primary);
+                transform: translateY(-3px);
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes scaleIn {
+                from { transform: scale(0.9); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+        `;
+        
+        // اضافه کردن استایل‌های اضافی
+        const styleElement = document.createElement('style');
+        styleElement.textContent = additionalStyles;
+        document.head.appendChild(styleElement);
+        
+        // ============ راه‌اندازی نهایی ============
+        // تنظیم وضعیت اولیه HUD
+        document.getElementById('hudStatusDisplay').textContent = 'آماده';
+        
+        // نمایش اعلان خوشامدگویی
+        setTimeout(() => {
+            showToast('سیستم ترسیم نمودار آماده است! از کلیدهای 1 تا 4 برای انتخاب سریع توابع استفاده کنید.', 'info', 5000);
+        }, 1000);
+    </script>
+</body>
+</html>
